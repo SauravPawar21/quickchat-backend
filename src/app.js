@@ -5,6 +5,7 @@ const cors = require("cors");
 const cookieParser = require("cookie-parser");
 
 const connectDB = require("./config/database");
+const authRouter = require("./routes/auth");
 
 const app = express();
 const server = http.createServer(app);
@@ -17,6 +18,8 @@ app.use(
 );
 app.use(express.json());
 app.use(cookieParser());
+
+app.use("/api/auth", authRouter);
 
 app.get("/health", (req, res) => {
   res.json({ status: "QuickChat API is running!" });
