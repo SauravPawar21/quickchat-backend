@@ -1,12 +1,20 @@
 const Message = require("../models/message");
+const User = require("../models/user");
 
 const initSocket = (io) => {
   io.on("connection", (socket) => {
     console.log("User connected:", socket.id);
 
-    socket.on("joinRoom", (userId) => {
+    socket.on("joinRoom", async (userId) => {
       socket.join(userId);
-      console.log(`User ${userId} joined their room`);
+      socket.userId = userId;
+
+      await User.findByIdAndUpdate(userId, {
+        isOnline: true,
+        lastSeen: new Date(),
+      });
+
+      console.log(`User ${userId} is now online`);
     });
 
     socket.on("sendMessage", async (data) => {
@@ -19,7 +27,6 @@ const initSocket = (io) => {
         io.to(receiverId).emit("receiveMessage", message);
 
         io.to(senderId).emit("receiveMessage", message);
-        console.log(`Message from ${senderId} to ${receiverId}: ${text}`);
       } catch (err) {
         console.error("Error sending message:", err.message);
         socket.emit("error", { message: "Failed to send message" });
@@ -34,8 +41,16 @@ const initSocket = (io) => {
       io.to(receiverId).emit("stopTyping", { senderId });
     });
 
-    socket.on("disconnect", () => {
+    socket.on("disconnect", async () => {
       console.log("User disconnected:", socket.id);
+
+      if (socket.userId) {
+        await User.findByIdAndUpdate(socket.userId, {
+          isOnline: false,
+          lastSeen: new Date(),
+        });
+        console.log(`User ${socket.userId} is now offline`);
+      }
     });
   });
 };

@@ -8,13 +8,13 @@ router.get("/:otherUserId", authMiddleware, async (req, res) => {
     const myId = req.user._id;
     const otherUserId = req.params.otherUserId;
 
-    const message = await Message.find({
+    const messages = await Message.find({
       $or: [
         { senderId: myId, receiverId: otherUserId },
         { senderId: otherUserId, receiverId: myId },
       ],
     }).sort({ createdAt: 1 });
-    res.json({ message });
+    res.json({ messages });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
