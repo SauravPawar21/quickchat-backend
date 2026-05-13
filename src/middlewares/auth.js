@@ -4,7 +4,7 @@ const User = require("../models/user");
 const authMiddleware = async (req, res, next) => {
   try {
     const token =
-      req.cookies.token || req.headers.authorization?.replace("Bearer", "");
+      req.headers.authorization?.replace("Bearer ", "") || req.cookies.token;
     if (!token) {
       return res
         .status(401)
@@ -12,7 +12,7 @@ const authMiddleware = async (req, res, next) => {
     }
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    const user = await User.findOne(jwt.decode._id).select("-password");
+    const user = await User.findById(decoded._id).select("-password");
     if (!user) {
       return res.status(401).json({ message: "user not found" });
     }
