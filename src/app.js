@@ -10,6 +10,7 @@ const authRouter = require("./routes/auth");
 const initSocket = require("./socket/socket");
 const messageRouter = require("./routes/message");
 const userRouter = require("./routes/user");
+const uploadRouter = require("./routes/upload");
 
 const app = express();
 const server = http.createServer(app);
@@ -33,6 +34,7 @@ app.use(cookieParser());
 app.use("/api/auth", authRouter);
 app.use("/api/messages", messageRouter);
 app.use("/api/users", userRouter);
+app.use("/api/upload", uploadRouter);
 
 app.get("/health", (req, res) => {
   res.json({ status: "QuickChat API is running!" });
