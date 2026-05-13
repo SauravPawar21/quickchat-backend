@@ -19,6 +19,33 @@ router.get("/", authMiddleware, async (req, res) => {
   }
 });
 
+router.get("/search", authMiddleware, async (req, res) => {
+  console.log("SEARCH ROUTE HIT");
+  try {
+    const query = req.query.query;
+
+    if (!query) {
+      return res.json([]);
+    }
+
+    const users = await User.find({
+      _id: { $ne: req.user._id },
+      $or: [
+        { firstName: { $regex: query, $options: "i" } },
+        { lastName: { $regex: query, $options: "i" } },
+        { emailId: { $regex: query, $options: "i" } },
+      ],
+    }).select("-password");
+
+    res.json(users);
+  } catch (error) {
+    console.log("SEARCH ERROR:", error);
+    res.status(500).json({
+      message: "Error searching users",
+    });
+  }
+});
+
 router.get("/:userId", authMiddleware, async (req, res) => {
   try {
     const user = await User.findById(req.params.userId).select(
