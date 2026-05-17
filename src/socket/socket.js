@@ -19,9 +19,19 @@ const initSocket = (io) => {
 
     socket.on("sendMessage", async (data) => {
       try {
-        const { senderId, receiverId, text } = data;
+        const { senderId, receiverId, text, imageUrl, messageType } = data;
 
-        const message = new Message({ senderId, receiverId, text });
+        if (senderId.toString() === receiverId.toString()) return;
+
+        if (!text && !imageUrl) return;
+
+        const message = new Message({
+          senderId,
+          receiverId,
+          text: text || "",
+          imageUrl: imageUrl || "",
+          messageType: messageType || "text",
+        });
         await message.save();
 
         io.to(receiverId).emit("receiveMessage", message);
@@ -43,13 +53,11 @@ const initSocket = (io) => {
 
     socket.on("disconnect", async () => {
       console.log("User disconnected:", socket.id);
-
       if (socket.userId) {
         await User.findByIdAndUpdate(socket.userId, {
           isOnline: false,
           lastSeen: new Date(),
         });
-        console.log(`User ${socket.userId} is now offline`);
       }
     });
   });

@@ -43,4 +43,33 @@ router.post(
   },
 );
 
+router.post(
+  "/chat-image",
+  authMiddleware,
+  upload.single("photo"),
+  async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ message: "No file uploaded" });
+      }
+
+      const fileBase64 = req.file.buffer.toString("base64");
+      const dataUri = `data:${req.file.mimetype};base64,${fileBase64}`;
+
+      const result = await cloudinary.uploader.upload(dataUri, {
+        folder: "quickchat/chat-images",
+        transformation: [{ width: 800, quality: "auto" }],
+      });
+
+      res.json({
+        message: "Image uploaded successfully",
+        imageUrl: result.secure_url,
+      });
+    } catch (err) {
+      console.error("Chat image upload error:", err);
+      res.status(500).json({ message: err.message });
+    }
+  },
+);
+
 module.exports = router;
