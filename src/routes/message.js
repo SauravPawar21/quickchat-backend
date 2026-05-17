@@ -29,6 +29,13 @@ router.patch("/read/:senderId", authMiddleware, async (req, res) => {
       { senderId: senderId, receiverId: myId, isRead: false },
       { isRead: true },
     );
+    const io = req.app.get("io");
+    if (io) {
+      io.to(senderId).emit("messagesRead", {
+        readBy: myId,
+        senderId: senderId,
+      });
+    }
     res.json({ message: "Message marked as read" });
   } catch (err) {
     res.status(500).json({ message: err.message });
