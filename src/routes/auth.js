@@ -39,7 +39,11 @@ router.post("/signup", async (req, res) => {
       expiresIn: "1d",
     });
 
-    res.cookie("token", token, { httpOnly: true });
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "None",
+    });
 
     res.status(201).json({
       message: "User created successfully",
@@ -83,7 +87,11 @@ router.post("/login", async (req, res) => {
       expiresIn: "1d",
     });
 
-    res.cookie("token", token, { httpOnly: true });
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "None",
+    });
 
     res.json({
       message: "Login successful",
@@ -103,7 +111,11 @@ router.post("/login", async (req, res) => {
 });
 
 router.post("/logout", (req, res) => {
-  res.cookie("token", "", { expires: new Date(0) });
+  res.cookie("token", "", {
+    expires: new Date(0),
+    secure: true,
+    sameSite: "None",
+  });
   res.json({ message: "Logout out successfully" });
 });
 

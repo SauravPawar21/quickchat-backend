@@ -17,7 +17,7 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: "*",
+    origin: process.env.FRONTEND_URL,
     credentials: true,
   },
 });
@@ -25,7 +25,7 @@ const io = new Server(server, {
 app.set("io", io);
 app.use(
   cors({
-    origin: "*",
+    origin: process.env.FRONTEND_URL,
     credentials: true,
   }),
 );
